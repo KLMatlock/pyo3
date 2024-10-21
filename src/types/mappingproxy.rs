@@ -463,7 +463,7 @@ mod tests {
         Python::with_gil(|py| {
             let arr = [("a", 1), ("b", 2), ("c", 3)];
 
-            let dict = arr.clone().into_py_dict(py).unwrap();
+            let dict = arr.into_py_dict(py).unwrap();
             let py_map = PyMappingProxy::new(py, dict.as_mapping());
 
             assert_eq!(py_map.len().unwrap(), 3);
