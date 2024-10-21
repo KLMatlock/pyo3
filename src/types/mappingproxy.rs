@@ -20,8 +20,15 @@ pyobject_native_type_core!(
 
 impl PyMappingProxy {
     /// Creates a mappingproxy from an object.
-    pub fn new<'py>(py: Python<'py>, elements: &Bound<'py,PyMapping>) -> Bound<'py, PyMappingProxy> {
-        unsafe { ffi::PyDictProxy_New(elements.as_ptr()).assume_owned(py).downcast_into_unchecked() }
+    pub fn new<'py>(
+        py: Python<'py>,
+        elements: &Bound<'py, PyMapping>,
+    ) -> Bound<'py, PyMappingProxy> {
+        unsafe {
+            ffi::PyDictProxy_New(elements.as_ptr())
+                .assume_owned(py)
+                .downcast_into_unchecked()
+        }
     }
 
     // /// Checks if the mappingproxy is empty, i.e. `len(self) == 0`.
@@ -65,8 +72,7 @@ pub trait PyMappingProxyMethods<'py>: crate::sealed::Sealed {
     fn as_mapping(&self) -> &Bound<'py, PyMapping>;
 }
 
-impl<'py> PyMappingProxyMethods<'py> for Bound<'py,  PyMappingProxy> {
-
+impl<'py> PyMappingProxyMethods<'py> for Bound<'py, PyMappingProxy> {
     fn copy(&self) -> PyResult<Bound<'_, PyMappingProxy>> {
         let res = self.call_method0("copy")?;
         unsafe { Ok(res.downcast_into_unchecked::<PyMappingProxy>()) }
@@ -77,7 +83,7 @@ impl<'py> PyMappingProxyMethods<'py> for Bound<'py,  PyMappingProxy> {
     }
 
     #[inline]
-    fn keys(&self) ->  PyResult<Bound<'py, PySequence>> {
+    fn keys(&self) -> PyResult<Bound<'py, PySequence>> {
         unsafe {
             Ok(ffi::PyMapping_Keys(self.as_ptr())
                 .assume_owned_or_err(self.py())?
@@ -122,20 +128,17 @@ impl<'py> Iterator for BoundMappingProxyIterator<'py> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iterator
-            .next().map(|key| match key {
-                Ok(key) => {
-                    match self.mappingproxy.get_item(&key) {
-                        Ok(value) => Ok((key, value)),
-                        Err(e) => Err(e),
-                    }
-                },
+        self.iterator.next().map(|key| match key {
+            Ok(key) => match self.mappingproxy.get_item(&key) {
+                Ok(value) => Ok((key, value)),
                 Err(e) => Err(e),
-            })
+            },
+            Err(e) => Err(e),
+        })
     }
 }
 
-impl<'py> std::iter::IntoIterator for Bound<'py,PyMappingProxy> {
+impl<'py> std::iter::IntoIterator for Bound<'py, PyMappingProxy> {
     type Item = PyResult<(Bound<'py, PyAny>, Bound<'py, PyAny>)>;
     type IntoIter = BoundMappingProxyIterator<'py>;
 
@@ -146,7 +149,6 @@ impl<'py> std::iter::IntoIterator for Bound<'py,PyMappingProxy> {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -165,17 +167,20 @@ mod tests {
     fn test_new() {
         Python::with_gil(|py| {
             let pydict = [(7, 32)].into_py_dict(py).unwrap();
-            let mappingproxy= PyMappingProxy::new(py, pydict.as_mapping());
+            let mappingproxy = PyMappingProxy::new(py, pydict.as_mapping());
             mappingproxy.get_item(7i32).unwrap();
             assert_eq!(
-                        32,
-                        mappingproxy
-                            .get_item(7i32)
-                            .unwrap()
-                            .extract::<i32>()
-                            .unwrap()
-                    );
-            assert!(mappingproxy.get_item(8i32).unwrap_err().is_instance_of::<PyKeyError>(py));
+                32,
+                mappingproxy
+                    .get_item(7i32)
+                    .unwrap()
+                    .extract::<i32>()
+                    .unwrap()
+            );
+            assert!(mappingproxy
+                .get_item(8i32)
+                .unwrap_err()
+                .is_instance_of::<PyKeyError>(py));
             let map: HashMap<i32, i32> = [(7, 32)].iter().cloned().collect();
             assert_eq!(map, mappingproxy.extract().unwrap());
             let map: BTreeMap<i32, i32> = [(7, 32)].iter().cloned().collect();
@@ -242,7 +247,10 @@ mod tests {
                     .extract::<i32>()
                     .unwrap()
             );
-            assert!(mappingproxy.get_item(8i32).unwrap_err().is_instance_of::<PyKeyError>(py));
+            assert!(mappingproxy
+                .get_item(8i32)
+                .unwrap_err()
+                .is_instance_of::<PyKeyError>(py));
         });
     }
 
@@ -468,7 +476,7 @@ mod tests {
         Python::with_gil(|py| {
             let mut map = HashMap::<i32, i32>::new();
             map.insert(1, 1);
-            
+
             let dict = map.clone().into_py_dict(py).unwrap();
             let py_map = PyMappingProxy::new(py, dict.as_mapping());
 
@@ -540,14 +548,13 @@ mod tests {
                 map.into_iter().collect::<Vec<(String, String)>>(),
                 mappingproxy
                     .iter()
-                    .map(|object|{
+                    .map(|object| {
                         let tuple = object.unwrap();
                         (
                             tuple.0.extract::<String>().unwrap(),
                             tuple.1.extract::<String>().unwrap(),
                         )
-                    }
-                    )
+                    })
                     .collect::<Vec<(String, String)>>()
             );
         })
@@ -582,10 +589,9 @@ mod tests {
                                 .downcast::<PyInt>()
                                 .unwrap()
                                 .extract::<usize>()
-                                .unwrap()
-                            )
-                        }
-                    )
+                                .unwrap(),
+                        )
+                    })
                     .collect::<Vec<(usize, usize)>>()
             );
             for index in 1..LEN {
@@ -607,12 +613,10 @@ mod tests {
     fn iter_mappingproxy_nosegv() {
         Python::with_gil(|py| {
             const LEN: usize = 10_000_000;
-            let items = (0..LEN as u64)
-                .map(|i| (i, i * 2));
+            let items = (0..LEN as u64).map(|i| (i, i * 2));
 
             let dict = items.clone().into_py_dict(py).unwrap();
             let mappingproxy = PyMappingProxy::new(py, dict.as_mapping());
-    
 
             let mut sum = 0;
             for result in mappingproxy {
