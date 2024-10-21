@@ -154,7 +154,6 @@ impl<'py> std::iter::IntoIterator for Bound<'py, PyMappingProxy> {
 mod tests {
 
     use super::*;
-    #[cfg(not(PyPy))]
     use crate::types::dict::*;
     use crate::Python;
     use crate::{
