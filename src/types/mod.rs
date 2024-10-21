@@ -249,7 +249,7 @@ mod function;
 pub(crate) mod iterator;
 pub(crate) mod list;
 pub(crate) mod mapping;
-mod mappingproxy;
+pub(crate) mod mappingproxy;
 mod memoryview;
 pub(crate) mod module;
 mod none;
