@@ -43,7 +43,7 @@ impl PyMappingProxy {
 /// syntax these methods are separated into a trait, because stable Rust does not yet support
 /// `arbitrary_self_types`.
 #[doc(alias = "PyMappingProxy")]
-trait PyMappingProxyMethods<'py>: crate::sealed::Sealed {
+pub trait PyMappingProxyMethods<'py>: crate::sealed::Sealed {
     /// Returns a new mappingproxy that contains the same key-value pairs as self.
     ///
     /// This is equivalent to the Python expression `self.copy()`.
