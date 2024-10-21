@@ -1,5 +1,7 @@
 use crate::types::{
-    PyBool, PyByteArray, PyBytes, PyCapsule, PyComplex, PyDict, PyFloat, PyFrozenSet, PyList, PyMapping, PyMappingProxy, PyModule, PySequence, PySet, PySlice, PyString, PyTraceback, PyTuple, PyType, PyWeakref, PyWeakrefProxy, PyWeakrefReference
+    PyBool, PyByteArray, PyBytes, PyCapsule, PyComplex, PyDict, PyFloat, PyFrozenSet, PyList,
+    PyMapping, PyMappingProxy, PyModule, PySequence, PySet, PySlice, PyString, PyTraceback,
+    PyTuple, PyType, PyWeakref, PyWeakrefProxy, PyWeakrefReference,
 };
 use crate::{ffi, Bound, PyAny, PyResult};
 

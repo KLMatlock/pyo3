@@ -171,7 +171,8 @@ where
         }
 
         let mappingproxy = ob.downcast::<PyMappingProxy>()?;
-        let mut ret = collections::HashMap::with_capacity_and_hasher(mappingproxy.len()?, S::default());
+        let mut ret =
+            collections::HashMap::with_capacity_and_hasher(mappingproxy.len()?, S::default());
         for res in mappingproxy.clone() {
             let (k, v) = res?;
             ret.insert(k.extract()?, v.extract()?);
@@ -191,12 +192,12 @@ where
     V: FromPyObject<'py>,
 {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> Result<Self, PyErr> {
-        if let Ok(dict) = ob.downcast::<PyDict>(){
+        if let Ok(dict) = ob.downcast::<PyDict>() {
             let mut ret = collections::BTreeMap::new();
             for (k, v) in dict {
                 ret.insert(k.extract()?, v.extract()?);
             }
-            return Ok(ret)
+            return Ok(ret);
         }
 
         let mappingproxy = ob.downcast::<PyMappingProxy>()?;
