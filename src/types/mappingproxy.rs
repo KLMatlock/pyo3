@@ -14,12 +14,10 @@ use std::os::raw::c_int;
 #[repr(transparent)]
 pub struct PyMappingProxy(PyAny);
 
-
 #[inline]
 unsafe fn dict_proxy_check(op: *mut ffi::PyObject) -> c_int {
     ffi::Py_IS_TYPE(op, std::ptr::addr_of_mut!(ffi::PyDictProxy_Type))
 }
-
 
 pyobject_native_type_core!(
     PyMappingProxy,
@@ -48,7 +46,6 @@ impl PyMappingProxy {
 /// `arbitrary_self_types`.
 #[doc(alias = "PyMappingProxy")]
 pub trait PyMappingProxyMethods<'py, 'a>: crate::sealed::Sealed {
-
     /// Checks if the mappingproxy is empty, i.e. `len(self) == 0`.
     fn is_empty(&self) -> PyResult<bool>;
 
@@ -70,7 +67,6 @@ pub trait PyMappingProxyMethods<'py, 'a>: crate::sealed::Sealed {
 }
 
 impl<'py, 'a> PyMappingProxyMethods<'py, 'a> for Bound<'py, PyMappingProxy> {
-
     fn is_empty(&self) -> PyResult<bool> {
         Ok(self.len()? == 0)
     }
