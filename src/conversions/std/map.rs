@@ -7,10 +7,7 @@ use crate::ToPyObject;
 use crate::{
     conversion::IntoPyObject,
     instance::Bound,
-    types::{
-        any::PyAnyMethods, dict::PyDictMethods, mappingproxy::PyMappingProxyMethods, PyDict,
-        PyMappingProxy,
-    },
+    types::{any::PyAnyMethods, dict::PyDictMethods, PyDict},
     FromPyObject, IntoPy, PyAny, PyErr, PyObject, Python,
 };
 

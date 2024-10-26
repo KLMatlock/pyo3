@@ -160,10 +160,6 @@ mod tests {
                 .get_item(8i32)
                 .unwrap_err()
                 .is_instance_of::<PyKeyError>(py));
-            let map: HashMap<i32, i32> = [(7, 32)].iter().cloned().collect();
-            assert_eq!(map, mappingproxy.extract().unwrap());
-            let map: BTreeMap<i32, i32> = [(7, 32)].iter().cloned().collect();
-            assert_eq!(map, mappingproxy.extract().unwrap());
         });
     }
 
@@ -318,36 +314,6 @@ mod tests {
             }
             assert_eq!(7 + 8 + 9, key_sum);
             assert_eq!(32 + 42 + 123, value_sum);
-        });
-    }
-
-    #[test]
-    fn test_hashmap_to_python() {
-        Python::with_gil(|py| {
-            let mut map = HashMap::<i32, i32>::new();
-            map.insert(1, 1);
-
-            let dict = map.clone().into_py_dict(py).unwrap();
-            let py_map = PyMappingProxy::new(py, dict.as_mapping());
-
-            assert_eq!(py_map.len().unwrap(), 1);
-            assert_eq!(py_map.get_item(1).unwrap().extract::<i32>().unwrap(), 1);
-            assert_eq!(map, py_map.extract().unwrap());
-        });
-    }
-
-    #[test]
-    fn test_btreemap_to_python() {
-        Python::with_gil(|py| {
-            let mut map = BTreeMap::<i32, i32>::new();
-            map.insert(1, 1);
-
-            let dict = map.clone().into_py_dict(py).unwrap();
-            let py_map = PyMappingProxy::new(py, dict.as_mapping());
-
-            assert_eq!(py_map.len().unwrap(), 1);
-            assert_eq!(py_map.get_item(1).unwrap().extract::<i32>().unwrap(), 1);
-            assert_eq!(map, py_map.extract().unwrap());
         });
     }
 
